@@ -9,8 +9,10 @@ from queue import Queue
 from threading import Thread
 from faster_whisper import WhisperModel
 import time
+from my_utils import clean_iterable
+from test_connection_app import test_request_play
 
-model_size = "large-v2"
+model_size = "large-v3"
 
 # faster whisper model
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -136,15 +138,18 @@ def speech_recognition():
                     bandpass = bandpass_filter(moveing_average, lowcut=300, highcut=3400, fs=SAMPLE_RATE)
 
                     normalized_audio = bandpass.astype(np.float32) / 32768.0  # 16비트 정규화
-                    segments, _ = whisper_model.transcribe(normalized_audio, language='ko', beam_size=35, temperature=0.6)
+
+                    print(f"Audio length : {len(normalized_audio) / SAMPLE_RATE}")
+                    segments, _ = whisper_model.transcribe(normalized_audio, language='ja', beam_size=20, temperature=0.8)
 
                     end = time.time()
                     length = end - start          
                     
                     # 변환된 텍스트 출력
-                    for seg in segments:
-                        print(f"Detected: {seg.text}")
-                    print(f"It took {length} seconds! {len(list(segments))}")          
+                    text_result = clean_iterable(segments)
+                    print(f"Detected: {text_result}")
+                    print(f"It took {length} seconds! {len(list(segments))}")
+                    test_request_play(text_result)   
 
                     # 초기화
                     in_speech = False
