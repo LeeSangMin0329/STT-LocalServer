@@ -1,10 +1,9 @@
 from faster_whisper.transcribe import Segment
 from typing import Iterable
 
-
 remove_words = ["ご視聴ありがとうござ"]
 
-# 중복 및 특정 문자열 포함 아이템 삭제 후 문자열 병합
+# 중복 및 특정 문자열 포함 문장 삭제 후 문자열 병합
 def clean_iterable(iterable: Iterable[Segment]):
     result = []
     seen_word = set()
