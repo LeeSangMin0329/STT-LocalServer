@@ -17,7 +17,7 @@ def denoise(data):
     return nr.reduce_noise(data, SAMPLE_RATE)
 
 def trim(data):
-    return librosa.effects.trim(data, top_db=30)
+    return librosa.effects.trim(data, top_db=20)
 
 def preemphasis(signal, coeff=0.97):
     """

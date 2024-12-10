@@ -6,7 +6,7 @@ from preprocess_audio import preprocessing
 from postprocess_text import clean_iterable
 
 # whisper settings
-MODEL_SIZE = "large-v3"
+MODEL_SIZE = "medium"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 whisper_model = WhisperModel(MODEL_SIZE, device=device, compute_type="float16")
@@ -18,7 +18,10 @@ def convert_to_text(audio: np.ndarray) -> str:
     # preprocessing
     preprocessed_audio = preprocessing(audio)
 
-    segments, _ = whisper_model.transcribe(preprocessed_audio, language='ja', beam_size=20, temperature=0.8)
+    preprocessing_time = time.time()
+    print(f"preprocessing_time delay : {preprocessing_time - start} seconds.")
+
+    segments, _ = whisper_model.transcribe(preprocessed_audio, language='ja', beam_size=5, vad_filter=True, without_timestamps=True,)
 
     # postprocessing
     text_result = clean_iterable(segments)

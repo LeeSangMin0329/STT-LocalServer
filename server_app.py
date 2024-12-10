@@ -1,16 +1,19 @@
 import numpy as np
 import time
 from threading import Thread
+from queue import Queue
 
 from audio_stream import record_stream_from_microphone, speech_recognition
 from stt_converter import convert_to_text
 from test_connection_app import test_request_play
 
+text_queue = Queue()
+
 def on_recieved_audio(input_audio: np.ndarray):
     text_result = convert_to_text(input_audio)
-    #test_request_play(text_result)
+    text_queue.put(text_result)
 
-def process_audio_data():
+def process_audio_data():       
     speech_recognition(on_recieved_audio)
 
 def start_recording():
@@ -23,3 +26,10 @@ def start_recording():
 
 if __name__ == "__main__":
     start_recording()
+
+while True:
+    if not text_queue.empty():
+        test_request_play(text_queue.get())
+    time.sleep(0.1)
+        
+     
