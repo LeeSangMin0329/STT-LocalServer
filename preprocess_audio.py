@@ -10,8 +10,8 @@ def preprocessing(data):
     preemphasised = preemphasis(trimmed)
     moveing_average = moving_average_filter(preemphasised)
     bandpass = bandpass_filter(moveing_average)
-
-    return normalize_16bits(bandpass)
+    amplified = amplify(bandpass, factor=2.0)
+    return normalize_16bits(amplified)
 
 def denoise(data):
     return nr.reduce_noise(data, SAMPLE_RATE)
@@ -55,5 +55,22 @@ def bandpass_filter(data):
 
     return lfilter(b, a, data)
 
+def amplify(input_audio, factor):
+    return np.clip(input_audio * factor, -32768, 32767).astype(np.int16)
+
 def normalize_16bits(data):
     return data.astype(np.float32) / 32768.0  # 16비트 정규화
+
+def IsInvalidAudio(audio_data, sample_rate, threshold_db = -30, min_duration = 0.3):
+    rms = librosa.feature.rms(y = audio_data)
+
+    db = librosa.amplitude_to_db(rms, ref = np.max)
+
+    is_quiet = np.any(db < threshold_db)
+
+    duration = librosa.get_duration(y=audio_data, sr=sample_rate)
+
+    is_short = duration <= min_duration
+    print(f"is quiet {is_quiet}, duration: {duration}")
+
+    return is_quiet or is_short

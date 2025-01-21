@@ -5,13 +5,15 @@ from queue import Queue
 
 from audio_stream import record_stream_from_microphone, speech_recognition
 from stt_converter import convert_to_text
-from test_connection_app import test_request_play
+from test_connection_app import test_request_play, request_audio
 
 text_queue = Queue()
 
 def on_recieved_audio(input_audio: np.ndarray):
-    text_result = convert_to_text(input_audio)
-    text_queue.put(text_result)
+    request_audio(input_audio)
+
+    #text_result = convert_to_text(input_audio)
+    #text_queue.put(text_result)
 
 def process_audio_data():       
     speech_recognition(on_recieved_audio)
@@ -30,6 +32,6 @@ if __name__ == "__main__":
 while True:
     if not text_queue.empty():
         test_request_play(text_queue.get())
-    time.sleep(0.1)
+    time.sleep(1)
         
      
