@@ -61,16 +61,16 @@ def amplify(input_audio, factor):
 def normalize_16bits(data):
     return data.astype(np.float32) / 32768.0  # 16비트 정규화
 
-def IsInvalidAudio(audio_data, sample_rate, threshold_db = -30, min_duration = 0.3):
+def IsInvalidAudio(audio_data, sample_rate, threshold_db = -25, min_duration = 0.5):
     rms = librosa.feature.rms(y = audio_data)
 
     db = librosa.amplitude_to_db(rms, ref = np.max)
 
-    is_quiet = np.any(db < threshold_db)
+    is_allow_db = np.any(db > threshold_db)
 
     duration = librosa.get_duration(y=audio_data, sr=sample_rate)
 
     is_short = duration <= min_duration
-    print(f"is quiet {is_quiet}, duration: {duration}")
+    print(f"is_allow_db {is_allow_db}, duration: {duration}")
 
-    return is_quiet or is_short
+    return (not is_allow_db) or is_short

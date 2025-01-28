@@ -15,7 +15,7 @@ def test_request_play(message: str):
         return 
 
     try:
-        response = requests.post(f"{server_url}/chat", data={"message": message})
+        response = requests.post(f"{server_url}/chat", data={"message": message, "required_translate" : "False"})
 
         print(f"Send to {server_url} : {response.status_code}")
     except Exception as e:

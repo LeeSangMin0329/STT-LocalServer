@@ -30,8 +30,8 @@ def record_stream_from_microphone():
                     frames_per_buffer=CHUNK_SIZE)
 
     # 음성이 감지된 후 짧은 공백을 유지하기 위한 변수
-    silence_counter = 100 # 2 sec
-    MAX_SILENCE = 100  # 짧은 침묵 구간을 허용할 최대 횟수
+    silence_counter = 400 # 2 sec
+    MAX_SILENCE = 400  # 짧은 침묵 구간을 허용할 최대 횟수
 
     while True:
         available_frames = stream.get_read_available()
