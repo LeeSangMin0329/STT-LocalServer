@@ -31,10 +31,10 @@ def request_audio(audio: np.ndarray):
     sf.write(audio_buffer, audio, SAMPLE_RATE, format="WAV")
     audio_buffer.seek(0)
 
-    encoded_data = base64.b64encode(audio_buffer.read()).decode("utf-8")
+    # encoded_data = base64.b64encode(audio_buffer.read()).decode("utf-8")
 
     try:
-        response = requests.post(f"{server_url}/chat_audio", data={"message": encoded_data})
+        response = requests.post(f"{server_url}/chat_audio", files = {"message" : ("audio_data.wav", audio_buffer, "audio/wav")})
 
         print(f"Send to {server_url} : {response.status_code}")
     except Exception as e:
