@@ -5,7 +5,7 @@ import numpy as np
 import soundfile as sf
 from constants import SAMPLE_RATE
 
-from preprocess_audio import IsInvalidAudio
+from preprocess_audio import is_invalid_audio
 
 server_url = "http://127.0.0.1:50003"
 
@@ -15,14 +15,14 @@ def test_request_play(message: str):
         return 
 
     try:
-        response = requests.post(f"{server_url}/chat", data={"message": message, "required_translate" : "False"})
+        response = requests.post(f"{server_url}/chat", data = {"message": message, "required_translate" : "False"})
 
         print(f"Send to {server_url} : {response.status_code}")
     except Exception as e:
         print(f"Exception : {str(e)}")
 
 def request_audio(audio: np.ndarray):
-    if IsInvalidAudio(audio, SAMPLE_RATE):
+    if is_invalid_audio(audio, SAMPLE_RATE):
         print("invalid audio detected")
         return
     

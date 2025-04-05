@@ -64,28 +64,31 @@ def speech_recognition(on_audio_output: Callable[[np.ndarray], None]):
     silence_threshold = 0
     
     while True:
-        if not recorded_audio.empty():
-            frames = recorded_audio.get()  # 큐에서 음성 데이터 가져오기
+        if recorded_audio.empty():
+            time.sleep(STREAM_DELAY_SEC)
+            continue
 
-            # VAD를 사용하여 음성 구간만 추출
-            is_speech = vad_model.is_speech(frames, sample_rate=SAMPLE_RATE)
+        frames = recorded_audio.get()  # 큐에서 음성 데이터 가져오기
 
-            if is_speech:
-                if not in_speech:
-                    in_speech = True  # 처음 음성이 시작되었을 때
+        # VAD를 사용하여 음성 구간만 추출
+        is_speech = vad_model.is_speech(frames, sample_rate=SAMPLE_RATE)
 
-                buffer += frames  # 음성을 버퍼에 추가
+        if is_speech:
+            if not in_speech:
+                in_speech = True  # 처음 음성이 시작되었을 때
+
+            buffer += frames  # 음성을 버퍼에 추가
+            silence_threshold = 0
+
+        elif not is_speech and in_speech:
+            if silence_threshold < SILENCE_LIMIT * (SAMPLE_RATE / CHUNK_SIZE):
+                silence_threshold += 1
+            else:
+                input_audio = np.frombuffer(buffer, dtype=np.int16)
+
+                on_audio_output(input_audio) 
+
+                # 초기화
+                in_speech = False
                 silence_threshold = 0
-
-            elif not is_speech and in_speech:
-                if silence_threshold < SILENCE_LIMIT * (SAMPLE_RATE / CHUNK_SIZE):
-                    silence_threshold += 1
-                else:
-                    input_audio = np.frombuffer(buffer, dtype=np.int16)
-
-                    on_audio_output(input_audio) 
-
-                    # 초기화
-                    in_speech = False
-                    silence_threshold = 0
-                    buffer = b""  # 버퍼 초기화
+                buffer = b""  # 버퍼 초기화
